@@ -1,0 +1,73 @@
+name: Deploy project and Storybook
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "projects/**"
+      - ".github/workflows/deploy-pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Detect project
+        id: detect
+        run: |
+          PROJECT=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
+            | grep '^projects/' \
+            | cut -d/ -f2 \
+            | head -n1)
+
+          echo "project=$PROJECT" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        run: |
+          cd projects/${{ steps.detect.outputs.project }}
+          npm install
+
+      - name: Build app
+        run: |
+          cd projects/${{ steps.detect.outputs.project }}
+          npm run build
+
+      - name: Build Storybook
+        run: |
+          cd projects/${{ steps.detect.outputs.project }}
+          npm run build-storybook
+
+      - name: Prepare Pages output
+        run: |
+          mkdir -p pages-output
+          cp -R projects/${{ steps.detect.outputs.project }}/dist/* pages-output/
+          mkdir -p pages-output/storybook
+          cp -R projects/${{ steps.detect.outputs.project }}/storybook-static/* pages-output/storybook/
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-output
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
