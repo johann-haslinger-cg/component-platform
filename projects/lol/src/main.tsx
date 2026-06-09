@@ -1,0 +1,9 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
+import "./styles.css";
+
+createRoot(document.getElementById("root")!).render(
+  <main className="p-8">
+    <h1 className="text-2xl font-semibold mb-4">Generated Customer UI</h1>
+  </main>
+);
