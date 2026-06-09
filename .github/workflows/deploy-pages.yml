@@ -27,11 +27,14 @@ jobs:
       - name: Detect project
         id: detect
         run: |
-          PROJECT=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
-            | grep '^projects/' \
-            | cut -d/ -f2 \
-            | head -n1)
+          PROJECT=$(find projects -mindepth 1 -maxdepth 1 -type d | head -n1 | cut -d/ -f2)
 
+          if [ -z "$PROJECT" ]; then
+            echo "No project found in projects/"
+            exit 1
+          fi
+
+          echo "Detected project: $PROJECT"
           echo "project=$PROJECT" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
