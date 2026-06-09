@@ -50,14 +50,18 @@ jobs:
       - name: Build Storybook
         run: |
           cd projects/${{ steps.detect.outputs.project }}
-          npm run build-storybook
+          npm run build-storybook -- --output-dir storybook-static
 
       - name: Prepare Pages output
         run: |
-          mkdir -p pages-output
-          cp -R projects/${{ steps.detect.outputs.project }}/dist/* pages-output/
-          mkdir -p pages-output/storybook
-          cp -R projects/${{ steps.detect.outputs.project }}/storybook-static/* pages-output/storybook/
+          PROJECT="${{ steps.detect.outputs.project }}"
+
+          mkdir -p pages-output/$PROJECT
+
+          cp -R projects/$PROJECT/dist/* pages-output/$PROJECT/
+
+          mkdir -p pages-output/$PROJECT/storybook
+          cp -R projects/$PROJECT/storybook-static/* pages-output/$PROJECT/storybook/
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3
