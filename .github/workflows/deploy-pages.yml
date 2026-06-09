@@ -1,12 +1,11 @@
 name: Deploy project and Storybook
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "projects/**"
-      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+    inputs:
+      project:
+        required: true
+        type: string
 
 permissions:
   contents: read
