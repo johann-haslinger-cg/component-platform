@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "components": [
+    {
+      "componentKey": "Button",
+      "remoteModule": "./Button",
+      "contractVersion": "1"
+    }
+  ]
+}
